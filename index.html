@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BBK 정기 청소 스케줄 계산기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f9f9f7;min-height:100vh;display:flex;justify-content:center;padding:2rem 1rem;}
+.wrap{width:100%;max-width:640px;background:#fff;border-radius:16px;padding:2rem 1.5rem;border:1px solid #e5e5e0;}
+.section-title{font-size:13px;font-weight:500;color:#888;margin-bottom:10px;letter-spacing:0.02em;}
+.option-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.5rem;}
+.opt-btn{
+  padding:8px 16px;border-radius:8px;
+  border:1.5px solid #ddd;
+  background:#fff;color:#111;font-size:14px;cursor:pointer;
+  transition:all 0.15s;position:relative;
+}
+.opt-btn:hover{background:#f5f5f0;}
+.opt-btn.selected{
+  background:#E1F5EE;border:2px solid #1D9E75;
+  color:#085041;font-weight:500;
+  box-shadow:0 0 0 3px rgba(29,158,117,0.15);
+}
+.opt-btn.selected::after{
+  content:'✓';position:absolute;top:-8px;right:-8px;
+  width:18px;height:18px;border-radius:50%;
+  background:#1D9E75;color:#fff;font-size:10px;font-weight:700;
+  line-height:18px;text-align:center;display:block;
+}
+.item-btn{
+  padding:8px 14px;border-radius:8px;
+  border:1.5px solid #ddd;
+  background:#fff;color:#111;font-size:14px;cursor:pointer;
+  transition:all 0.15s;position:relative;
+}
+.item-btn:hover{background:#f5f5f0;}
+.item-btn.on{
+  background:#E1F5EE;border:2px solid #1D9E75;
+  color:#085041;font-weight:500;
+  box-shadow:0 0 0 3px rgba(29,158,117,0.15);
+}
+.item-btn.on::after{
+  content:'✓';position:absolute;top:-8px;right:-8px;
+  width:18px;height:18px;border-radius:50%;
+  background:#1D9E75;color:#fff;font-size:10px;font-weight:700;
+  line-height:18px;text-align:center;display:block;
+}
+.item-toggle-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:1.5rem;}
+.result-area{
+  background:#f9f9f7;border-radius:12px;
+  border:1px solid #e5e5e0;padding:1.25rem;margin-top:0.5rem;
+}
+.result-row{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 0;border-bottom:1px solid #e5e5e0;
+}
+.result-row:last-child{border-bottom:none;}
+.month-badge{
+  min-width:56px;text-align:center;
+  background:#E1F5EE;color:#085041;
+  font-size:12px;font-weight:500;
+  padding:4px 8px;border-radius:8px;
+  flex-shrink:0;margin-top:2px;
+}
+.month-items{font-size:14px;color:#111;line-height:1.6;}
+.month-items span{
+  display:inline-block;background:#fff;
+  border:1px solid #ddd;border-radius:8px;
+  padding:2px 10px;margin:2px 3px;font-size:13px;
+}
+.hint{font-size:13px;color:#888;margin-bottom:0.5rem;}
+.main-title{font-size:20px;font-weight:500;color:#111;margin-bottom:6px;}
+.notice-box{
+  display:flex;align-items:flex-start;gap:8px;
+  background:#E1F5EE;border-radius:8px;
+  padding:10px 14px;margin-bottom:1.5rem;
+}
+.notice-box span{font-size:13px;color:#085041;line-height:1.6;}
+.divider{border:none;border-top:1px solid #e5e5e0;margin:0 0 1.5rem;}
+.step-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;
+  background:#1D9E75;color:#fff;font-size:10px;font-weight:700;
+  margin-right:6px;vertical-align:middle;
+}
+.example-tag{
+  font-size:11px;font-weight:400;color:#1D9E75;
+  background:#E1F5EE;padding:2px 7px;border-radius:20px;
+  margin-left:6px;vertical-align:middle;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="main-title">BBK 정기 청소 스케줄 계산기</div>
+  <div class="notice-box">
+    <i class="ti ti-info-circle" style="font-size:16px;color:#1D9E75;flex-shrink:0;margin-top:1px;"></i>
+    <span>하위 품목, 주기 등은 예시이며 원하는 형태로 커스텀이 가능해요.</span>
+  </div>
+
+  <div class="section-title"><span class="step-num">1</span>청소할 품목 선택 <span class="example-tag">예시</span></div>
+  <div class="item-toggle-row" id="itemRow"></div>
+  <hr class="divider">
+
+  <div class="section-title"><span class="step-num">2</span>방문 주기 선택 <span class="example-tag">예시</span></div>
+  <div class="option-row" id="cycleRow">
+    <button class="opt-btn" data-val="1" onclick="selectCycle(this)">주 1회</button>
+    <button class="opt-btn" data-val="2" onclick="selectCycle(this)">주 2회</button>
+    <button class="opt-btn" data-val="4" onclick="selectCycle(this)">월 1회</button>
+    <button class="opt-btn" data-val="8" onclick="selectCycle(this)">격월 1회</button>
+  </div>
+  <hr class="divider">
+
+  <div class="section-title"><span class="step-num">3</span>1회 방문당 청소 품목 수 <span class="example-tag">예시</span></div>
+  <div class="option-row" id="perRow">
+    <button class="opt-btn" data-val="1" onclick="selectPer(this)">1개</button>
+    <button class="opt-btn" data-val="2" onclick="selectPer(this)">2개</button>
+    <button class="opt-btn" data-val="3" onclick="selectPer(this)">3개</button>
+    <button class="opt-btn" data-val="4" onclick="selectPer(this)">4개</button>
+  </div>
+  <hr class="divider">
+
+  <div class="section-title"><span class="step-num" style="background:#1D9E75;">✓</span>스케줄 결과</div>
+  <div class="hint" id="hint">품목, 주기, 1회 품목 수를 모두 선택하면 스케줄이 나타납니다</div>
+  <div class="result-area" id="resultArea" style="display:none;"></div>
+</div>
+
+<script>
+const allItems=['후드','덕트','간택기','식기세척기','바닥'];
+let selectedItems=[],cycleVal=null,perVal=null;
+
+function buildItems(){
+  const row=document.getElementById('itemRow');
+  row.innerHTML='';
+  allItems.forEach(item=>{
+    const btn=document.createElement('button');
+    btn.className='item-btn';
+    btn.textContent=item;
+    btn.onclick=function(){toggleItem(this,item);};
+    row.appendChild(btn);
+  });
+}
+
+function toggleItem(btn,item){
+  if(btn.classList.contains('on')){
+    btn.classList.remove('on');
+    selectedItems=selectedItems.filter(i=>i!==item);
+  } else {
+    btn.classList.add('on');
+    selectedItems.push(item);
+  }
+  render();
+}
+
+function selectCycle(btn){
+  document.querySelectorAll('#cycleRow .opt-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  cycleVal=parseInt(btn.dataset.val);
+  render();
+}
+
+function selectPer(btn){
+  document.querySelectorAll('#perRow .opt-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  perVal=parseInt(btn.dataset.val);
+  render();
+}
+
+function render(){
+  const hint=document.getElementById('hint');
+  const area=document.getElementById('resultArea');
+  if(selectedItems.length===0||!cycleVal||!perVal){
+    hint.textContent='품목, 주기, 1회 품목 수를 모두 선택하면 스케줄이 나타납니다';
+    hint.style.display='block';area.style.display='none';return;
+  }
+  if(perVal>selectedItems.length){
+    hint.textContent='1회 방문 품목 수가 선택한 품목 수보다 많습니다. 조정해 주세요.';
+    hint.style.display='block';area.style.display='none';return;
+  }
+  hint.style.display='none';area.style.display='block';
+  const isWeekly=cycleVal<=2;
+  const unit=isWeekly?'주':'개월';
+  const totalRounds=Math.ceil(selectedItems.length/perVal)*2;
+  let html='';
+  for(let i=0;i<totalRounds;i++){
+    const start=(i*perVal)%selectedItems.length;
+    const thisItems=[];
+    for(let j=0;j<perVal;j++) thisItems.push(selectedItems[(start+j)%selectedItems.length]);
+    html+=`<div class="result-row">
+      <div class="month-badge">${i+1}${unit}차</div>
+      <div class="month-items">${thisItems.map(it=>`<span>${it}</span>`).join('')} 청소 진행</div>
+    </div>`;
+  }
+  area.innerHTML=html;
+}
+
+buildItems();
+</script>
+</body>
+</html>
